@@ -60,7 +60,7 @@
 ### 🚀 Automática
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install git nodejs-lts ffmpeg wget tesseract -y && termux-setup-storage && git clone https://github.com/GabrielVB26/AkameBot_Lite-MD && cd AkameBot_Lite-MD && npm install && npm start
+pkg update -y && pkg upgrade -y && pkg install git nodejs-lts ffmpeg wget tesseract -y && termux-setup-storage -y && git clone https://github.com/GabrielVB26/AkameBot_Lite-MD && cd AkameBot_Lite-MD && npm install && npm start
 ```
 
 ### 🛠️ Manual
