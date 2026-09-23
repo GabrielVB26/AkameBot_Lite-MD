@@ -1,3 +1,5 @@
+const xpNecesariaNivel = (nivel) => Math.floor(60 * Math.pow(Math.max(1, Number(nivel) || 1), 1.45) + 40 * Math.max(1, Number(nivel) || 1));
+
 const crypto = require('crypto')
 const fs = require('fs')
 const moment = require("moment-timezone") 
@@ -11,10 +13,11 @@ const registro = JSON.parse(fs.readFileSync('./settings/Grupo/Json/registros.jso
   id : sender ,
   nombre : nombre,
   nivel : 1,
-  xp : 1,
-  rxp : 0,
-  dinero : 100,
-  rep : 0}
+  xp : 0,
+  rxp : xpNecesariaNivel(1),
+  dinero : 50,
+  rep : 0,
+  banco : 0}
             registro.push(obj)
             fs.writeFileSync('./settings/Grupo/Json/registros.json', JSON.stringify(registro, null , 2 )+'\n')
         }
@@ -276,6 +279,10 @@ position = i
 if(position !== false){
 return registro[position].rep
 }}
+function saldoBanco(sender) { const u=registro.find(x=>x.id===sender); return u ? Number(u.banco||0) : 0; }
+function depositar(sender,monto) { const u=registro.find(x=>x.id===sender); const n=Math.floor(Number(monto)||0); if(!u||n<=0||Number(u.dinero||0)<n)return false; u.dinero=Number(u.dinero||0)-n; u.banco=Number(u.banco||0)+n; fs.writeFileSync('./settings/Grupo/Json/registros.json',JSON.stringify(registro,null,2)+'\n'); return true; }
+function retirar(sender,monto) { const u=registro.find(x=>x.id===sender); const n=Math.floor(Number(monto)||0); if(!u||n<=0||Number(u.banco||0)<n)return false; u.banco=Number(u.banco||0)-n; u.dinero=Number(u.dinero||0)+n; fs.writeFileSync('./settings/Grupo/Json/registros.json',JSON.stringify(registro,null,2)+'\n'); return true; }
+
 ////LEVEL  
    module.exports = {
    MoneyOfSender, 
@@ -295,5 +302,9 @@ return registro[position].rep
     addRxp,
     addRep ,
     delRep , 
-    repUser 
+    repUser,
+   saldoBanco,
+   depositar,
+   retirar,
+   xpNecesariaNivel
     }
