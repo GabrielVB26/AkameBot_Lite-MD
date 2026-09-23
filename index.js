@@ -90,16 +90,7 @@ const { checkCasino,checkAttp,checkEmoji,checkEve, addClaimTraga, checkClaimTrag
     // Menu bot js
 const Menu = require ('./settings/Bot/Js/menu.js')
 const { obtenerFeature, establecerFeature } = require('./fuction/auto.js')
-const {
-  puedeUsar,
-  iniciarPpt,
-  iniciarAdivinaJuego,
-  procesarMensajeJuego,
-  marcarMensajeAdivina,
-  obtenerReto,
-  obtenerVerdad,
-  tienePvpActivo
-} = require('./Games/Js/extra.js')
+const { puedeUsar, iniciarAdivinaJuego, marcarMensajeAdivina, obtenerReto, obtenerVerdad, iniciarTrivia, marcarTrivia } = require('./Games/Js/extra.js')
 
  //configurar ggrupos
 const welkom = JSON.parse(fs.readFileSync('./settings/Grupo/Json/welkom.json')) 
@@ -720,9 +711,9 @@ const nome = info.pushName ? info.pushName : ''
 const groupAdmins = groupMembers.filter(p => p.admin);
 const Sadm = isGroup ? getGroupAdmins(groupAdmins) :''
 const messagesC = pes.slice(0).trim().split(/ +/).shift().toLowerCase()
-const args = body.trim().split(/ +/).slice(1)
-const q = args.join(' ')
-const text = args.join(' ')
+let args = body.trim().split(/ +/).slice(1)
+let q = args.join(' ')
+let text = args.join(' ')
 // MULTIPREFIJO
 const prefixes = prefixo.map(prefix => prefix.toLowerCase());
 const rawBudy = String(budy || '').trim();
@@ -733,6 +724,9 @@ const isCmd = hasPrefix;
 const commandSource = hasPrefix ? rawBudy.slice(usedPrefix.length).trim() : rawBudy;
 const commandArgs = commandSource ? commandSource.split(/\s+/) : [];
 const comando = removeAccents(commandArgs[0] || '').toLowerCase();
+args = commandArgs.slice(1);
+q = args.join(' ');
+text = q;
   // MULTIPREFIJO
 const mentions = (teks, memberr, id) => {
 (id == null || id == undefined || id == false) ? sock.sendMessage(from, {text: teks.trim(), mentions: memberr}) : sock.sendMessage(from, {text: teks.trim(), mentions: memberr})}
@@ -1106,7 +1100,7 @@ const runtime = function(seconds) {
 ╚════════════════════╝
 `,
 
-  coins: `『 🪙 Golds insuficientes para esta transacción @${sender.split('@')[0]} 』`
+  coins: `『 🪙 ¥ insuficientes para esta transacción @${sender.split('@')[0]} 』`
 }
 
 
@@ -1626,78 +1620,13 @@ case 'cerrar': {
 }
 break;
 
-case 'invitar': {
-  if (!isGroup) return enviar('🩸 Este comando solo funciona en grupos.');
-  if (!isBotGroupAdmins) return enviar('🩸 Necesito ser administradora para obtener el enlace de invitación.');
-  let numero = '';
-  const objetivoInvitacion = obtenerObjetivo(info, args[0], groupMembers);
-  if (objetivoInvitacion) {
-    const miembroInvitacion = obtenerMiembroPorIdentidad(groupMembers, objetivoInvitacion);
-    const fuente = miembroInvitacion?.phoneNumber || miembroInvitacion?.id || objetivoInvitacion;
-    numero = String(fuente).split('@')[0].split(':')[0].replace(/[^0-9]/g, '');
-  } else {
-    numero = String(args[0] || '').replace(/[^0-9]/g, '');
-  }
-  if (numero.length < 7 || numero.length > 15) return enviar('📩 Indica un número válido o responde al mensaje de un miembro. Ejemplo: `.invitar +584129912462`');
-  const jid = `${numero}@s.whatsapp.net`;
-  try {
-    const inviteCode = await sock.groupInviteCode(from);
-    const link = `https://chat.whatsapp.com/${inviteCode}`;
-    const invitador = `@${sender.split('@')[0]}`;
-    const data = cargarJsonSimple(invitacionesPath, { pending: {} });
-    if (!data.pending) data.pending = {};
-    data.pending[jid] = { group: from, inviter: sender, created: Date.now() };
-    guardarJsonSimple(invitacionesPath, data);
-    await sock.sendMessage(jid, { text: `🩸 Hola. ${invitador} te invita a unirte al grupo.\n\n🔗 ${link}\n\nSi fuiste expulsado anteriormente, responde *sí* para que Akame intente agregarte directamente, o *no* para cancelar.`, mentions: [sender] });
-    return enviar(`📩 Invitación enviada a *+${numero}*.`);
-  } catch (e) {
-    console.error('[INVITAR]', e?.message || e);
-    return enviar('❌ No pude enviar la invitación. Comprueba que el número tenga WhatsApp y que Akame sea administradora.');
-  }
-}
-break;
-
-case 'dado':
-case 'dados':
-case 'dadu': {
-  if (isGroup && !obtenerFeature(from, 'juegos')) return enviar('🩸 Los juegos automáticos están desactivados en este grupo.');
-  const espera = puedeUsar(`dado:${sender}`, 5000);
-  if (espera) return enviar(`🎲 Espera ${espera}s antes de lanzar otro dado.`);
-  const resultado = Math.floor(Math.random() * 6) + 1;
-  await enviar(`🎲 *DADO DE AKAME*\n\n⚔️ Resultado: *${resultado}/6*\n\n*Akame:* «La suerte también forma parte de una misión.»`);
-}
-break;
-
-case 'ppt':
-case 'piedrapapeltijera':
-case 'pvp': {
-  if (isGroup && !obtenerFeature(from, 'juegos')) return enviar('🩸 Los juegos automáticos están desactivados en este grupo.');
-  let objetivo = obtenerObjetivo(info, '', groupMembers);
-  let argumento = objetivo || q.trim();
-  let menciones = objetivo ? [objetivo] : [];
-  if (objetivo && isGroup) {
-    const miembro = obtenerMiembroPorIdentidad(groupMembers, objetivo);
-    if (miembro) {
-      // Guardamos todos los identificadores conocidos para que la aceptación
-      // también funcione cuando WhatsApp cambie entre LID y número.
-      argumento = miembro.id || miembro.phoneNumber || miembro.lid || objetivo;
-      menciones = [miembro.id || miembro.lid || miembro.phoneNumber || objetivo];
-      if (miembro.lid) menciones.push(miembro.lid);
-    }
-  }
-  const resultado = await iniciarPpt(sock, from, sender, argumento, info, menciones);
-  await enviar(resultado, menciones.length ? { mentions: [...new Set(menciones)] } : undefined);
-}
-break;
-
-case 'adivina':
-case 'adivinanza': {
-  if (!isGroup) return enviar('🩸 Este juego funciona en grupos.');
+case 'trivia': {
+  if (!isGroup) return enviar('🎮 Este juego funciona en grupos.');
   if (!obtenerFeature(from, 'juegos')) return enviar('🩸 Los juegos automáticos están desactivados en este grupo.');
-  const resultado = iniciarAdivinaJuego(from, sender);
+  const resultado = iniciarTrivia(from, sender);
   if (resultado.error) return enviar(resultado.error);
-  const sent = await sock.sendMessage(from, { text: resultado.text }, { quoted: info });
-  if (typeof marcarMensajeAdivina === 'function') marcarMensajeAdivina(from, sent?.key?.id);
+  const sent = await enviar(resultado.text);
+  marcarTrivia(from, sent?.key?.id, (usuario, dinero, experiencia) => { addkoin(usuario, dinero); addXp(usuario, experiencia); });
 }
 break;
 
@@ -1820,15 +1749,11 @@ botinfo = `
 ⏳  𝐆𝐔𝐀𝐑𝐃𝐈𝐀 »  ${runtime(uptime)}
 💾  𝐄𝐍𝐄𝐑𝐆𝐈́𝐀 »  ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB
 🩸  𝐄𝐒𝐓𝐀𝐃𝐎 »  Lista para la batalla
-╚══❖═══════❖══╝
+╰─────────
 `
 sock.sendMessage(from, { image: { url: getBotImage() }, caption: botinfo }, { quoted: info })
 }
 break 
-
-case 'botcompleto':
-enviar(`🩸 *Akame está en su puesto. Lista para la misión.*`);
-break
 
 case 'grupos':
 case 'grupo':
@@ -1860,13 +1785,6 @@ case 'serbot':
         await enviar("La técnica de comunicación ha fallado, Akame.");
     }
 break;
-
-case 'vip':
-case 'servip': {
-  return enviar(`💎 *AKAMEBOT_LITE-MD*\n\n¿Quieres conocer las novedades de Akame? Consulta la información, novedades y disponibilidad de la versión VIP en nuestro canal oficial.\n\n📢 *Canal oficial:*\nhttps://whatsapp.com/channel/0029VbD46om42DcdavNtDO16`);
-}
-break;
-
 
 //AJUSTES DEL GRUPO
 
@@ -2053,7 +1971,8 @@ break;
 case 's':
 case 'sticker':
   if(!isReg) return enviar(respuesta.registro)
-  if(coins < 1) return enviar(`Su tesorería no cuenta con los **Golds** suficientes para esta técnica.`)
+  const costoStickerVideo = 1;
+  const costoStickerFoto = 2;)
 
   // Primero detectamos si hay un mensaje citado
   var RSM = info.message?.extendedTextMessage?.contextInfo?.quotedMessage
@@ -2066,14 +1985,16 @@ case 'sticker':
   var author2 = `🗺️ En el Grupo: ${groupName} `
 
   if(boij2){
+    if (coins < costoStickerFoto) return enviar('❌ No tienes suficientes ¥. Crear un sticker desde una foto cuesta *¥2*.');
     enviar(`🩸 *Creando sticker, espere un momento...*`)
     owgi = await getFileBuffer(boij2, 'image')
     let encmediaa = await sendImageAsSticker2(sock, from, owgi, info, { packname:pack, author:author2})
     await DLT_FL(encmediaa)
     await addXp(sender,1)
-    await delkoin(sender,1)
+    await delkoin(sender,2)
     
   } else if(boij && boij.seconds < 11){
+    if (coins < costoStickerVideo) return enviar('❌ No tienes suficientes ¥. Crear un sticker cuesta *¥1*.');
     enviar(`Creando sticker, espere un momento...`)
     owgi = await getFileBuffer(boij, 'video')
     let encmedia = await sendVideoAsSticker2(sock, from, owgi, info, { packname:pack, author:author2})
@@ -2086,19 +2007,6 @@ case 'sticker':
   }
 break
 
-case 'calcular':
-case 'cal':
-  if (!isReg) return enviar(respuesta.registro)
-  if(args.length == 0) return enviar(`🩸 *SISTEMA DE CÁLCULO DE AKAME*\n\nUse los símbolos: + (Suma), - (Resta), / (División), * (Multiplicación).\n\n*Ejemplo:* !cal 4+4`)
-  try {
-    const resultzx = eval(q)
-    await sleep(1000)
-    enviar(`🩸 *RESULTADO:* \n${q} = *${resultzx}*`)
-  } catch {
-    enviar('La operación es inválida. Mantenga el orden.')
-  }
-break;
-            
 //Nesecita clave API ////
 case 'perfil' : case 'cartera' :
 case 'nivel' : case 'minivel' :{
@@ -2111,7 +2019,7 @@ const myrep2 = repUser(sender)
 const Xpnull = Rxxp - 1000
 if(Xp === null) return addXp(sender,Xpnull)
 const Mp = `
-╔══✦❖✦══【 𝑷𝒆𝒓𝒇𝒊𝒍 𝒅𝒆𝒍 𝑪𝒂𝒛𝒂𝒅𝒐𝒓 】══✦❖✦══╗
+╭─〔 🩸 PERFIL 〕
 🏷️  𝐍𝐨𝐦𝐛𝐫𝐞      »  @${sender.split('@')[0]}
 ⚔️  𝐑𝐚𝐧𝐠𝐨       »  ${Mlevel}
 👑  𝐑𝐞𝐩𝐮𝐭𝐚𝐜𝐢𝐨́𝐧  »  ${myrep2}
@@ -2126,87 +2034,6 @@ const Mp = `
 break 
 
 //comando tragamonedas 
-case 'tragamonedas':
-case 'tragamoneda':
-if (!isReg) return enviar("Debe registrarse en el refugio de Night Raid para participar.");
-const apuestas = 1; // Coste en Golds
-if (coins < apuestas) return enviar("No posee suficientes **Golds** para apostar.");
-
-const ahora = Date.now();
-const tiempoGuardado = timeClaimTraga(sender) || 0;
-const tiempoRestante = tiempoGuardado - ahora;
-
-if (tiempoRestante > 0) {
-    return await enviar(`🩸 Akame le ordena esperar ${runtime(tiempoRestante / 10)} para volver a probar su suerte.`);
-} else {
-    const espera = 8 * 60 * 60 * 1000; // 8 horas
-    await addClaimTraga(sender, espera);
-}
-
-// Restar un Gold por jugar
-await delkoin(sender, apuestas);
-
-const simbolos = ['🩸', '⚔️', '👺', '🔥', '🦋', '⚡', '🐗', '🐍', '💖', '🌑'];
-
-const obtenerFila = () => [
-    simbolos[Math.floor(Math.random() * simbolos.length)],
-    simbolos[Math.floor(Math.random() * simbolos.length)],
-    simbolos[Math.floor(Math.random() * simbolos.length)]
-];
-
-const filaArriba = obtenerFila();
-const filaAbajo = obtenerFila();
-let filaCentro;
-const probabilidad = Math.random(); 
-
-if (probabilidad < 0.6) {
-    const simboloGanador = simbolos[Math.floor(Math.random() * simbolos.length)];
-    filaCentro = [simboloGanador, simboloGanador, simboloGanador]; 
-} else {
-    filaCentro = obtenerFila(); 
-}
-
-const esGanador = filaCentro[0] === filaCentro[1] && filaCentro[1] === filaCentro[2];
-
-let resultadoMensaje = "😢 Su técnica ha fallado... Regrese mas tarde.";
-let premioTexto = "";
-
-if (esGanador) {
-    const premioCantidad = Math.floor(Math.random() * 6) + 5; 
-    const tipoPremio = Math.random() < 0.5 ? 'coins' : 'exp'; 
-
-    if (tipoPremio === 'coins') {
-        await addkoin(sender, premioCantidad);
-        premioTexto = `🎉 Ha obtenido ${premioCantidad} **Golds** para su tesorería.`;
-    } else {
-        await addXp(sender, premioCantidad);
-        premioTexto = `📚 Ha ganado ${premioCantidad} de experiencia.`;
-    }
-    resultadoMensaje = "🎉 ¡Victoria en el campo de batalla! 🎉";
-}
-
-const mensajeCasino = `
-         *༻  🎰 𝙏𝙍𝘼𝙂𝘼𝙈𝙊𝙉𝙀𝘿𝘼𝙎 𝙎𝙀𝘿𝙀 🎰 ༺*
-            ┏━━━━┛🔱┗━━━━┓
-             ||   【${filaArriba[0]}】【${filaArriba[1]}】【${filaArriba[2]}】   ||
-           ◢◞───────────◟◣
-        █ ||   【${filaCentro[0]}】【${filaCentro[1]}】【${filaCentro[2]}】   || █
-           ◥◝───────────◜◤
-             ||   【${filaAbajo[0]}】【${filaAbajo[1]}】【${filaAbajo[2]}】   ||
-            ┗━━━━┓🔱┏━━━━┛
-   🩸◆━━━━━━━▣✦▣━━━━━━━━◆🩸
-Inversión: ${apuestas} Gold.
-${resultadoMensaje}
-${premioTexto}
-`;
-
-setTimeout(() => {
-    enviar(mensajeCasino);
-}, 3000);
-break;
-
-
-
 case "dayli": case "daily":
 if(!isGroup) return
 if(!isReg) return 
@@ -2225,7 +2052,7 @@ if(dayli) {
     enviar(`
 ⏳🩸 𝐒𝐔𝐌𝐈𝐍𝐈𝐒𝐓𝐑𝐎𝐒 𝐃𝐈𝐀𝐑𝐈𝐎𝐒 🩸⏳
 
-El Night Raid le ha otorgado ${monto} **Gold** y ${montoExperiencia} de experiencia por su servicio.
+El Night Raid le ha otorgado ${monto} **¥** y ${montoExperiencia} de experiencia por su servicio.
 `)
     await addkoin(sender,monto)
     await addXp(sender,montoExperiencia)
@@ -2241,39 +2068,11 @@ case 'reg': case 'registrarme': case 'registrame': case 'rg':
         caption: `★━━━━★━━━━★★━━━━★
          *༻  𝐑𝐄𝐆𝐈𝐒𝐓𝐑𝐎  ༺*
 📜 Agente de Night Raid aceptado: *${nombre}*
-🪙 Has recibido *50 Golds* de parte del Night Raid como equipo inicial.
+🪙 Has recibido *50 ¥* de parte del Night Raid como equipo inicial.
 🩸 Bajo la supervisión de Akame.
 ◆━━━━━━━▣✦▣━━━━━━━━◆`
     }, { quoted: info })
     break
-
-case 'levelup': {
-    const XpR = xpOfsender(sender)
-    const Rxxp = Rxp(sender)
-    if(XpR >= Rxxp + 1000) {
-        await addLevel(sender , 1)
-        sleep(100)
-        await addkoin(sender,10)
-        sleep(100)
-        await addXp(sender,100)
-        sleep(100)
-        await addRxp(sender,1000)
-        const Mup = ` 
-        ★━━━ 𝐀𝐒𝐂𝐄𝐍𝐒𝐎 𝐃𝐄 𝐑𝐀𝐍𝐆𝐎 ━━━★
-✪ @${sender.split('@')[0]}
-🩸 El Night Raid reconoce su nuevo rango. Siga entrenando para no decepcionar a Akame.
-`
-        sock.sendMessage(from,{text : Mup , mentions : [sender]},{quoted : info})
-    } else {
-        enviar(`
-❌ Experiencia insuficiente. *${pushname}*, el Night Raid exige que entrene con más rigor.
-`)
-    }
-}
-break
-
-
-
 
 case 'mision': case 'misión': case 'encargo': case 'patrulla': case 'asalto': {
     if(!isReg) return enviar(respuesta.registro)
@@ -2294,8 +2093,8 @@ case 'mision': case 'misión': case 'encargo': case 'patrulla': case 'asalto': {
         enviar(`
                ★━━━ 𝐌𝐈𝐒𝐈𝐎́𝐍 𝐃𝐄 𝐂𝐀𝐙𝐀 ━━━★
 🩸 Tras un arduo enfrentamiento, ha exterminado a un grupo de enemigos del Imperio.
-💰 El Night Raid le otorga una recompensa de *${monto} Golds*.
-💬 ❝ el refugio de Night Raid garantiza un pago mínimo de *5 Golds* por mantener los sectores seguros. ❞
+💰 El Night Raid le otorga una recompensa de *${monto} ¥*.
+💬 ❝ el refugio de Night Raid garantiza un pago mínimo de *5 ¥* por mantener los sectores seguros. ❞
 
 ⏳ Descanse, recibirá nuevas órdenes en 1 minuto.
 `)
@@ -2303,54 +2102,6 @@ case 'mision': case 'misión': case 'encargo': case 'patrulla': case 'asalto': {
     }
 }
 break 
-
-case "duelo": case "enfrentar": case "ruleta": {
-    if (!q) return enviar(`Indique la cantidad de Golds que está dispuesto a arriesgar en batalla.`);
-    if (!isReg) return enviar(respuesta.registro)
-    const monto = parseInt(q)
-    if (isNaN(monto) || monto <= 0) return enviar(`Indique un monto válido en Golds.`);
-    if (monto > MoneyOfSender(sender)) return enviar(`No posee esa cantidad de Golds en su tesorería.`);
-    if (monto > 5) return enviar('No se permite arriesgar más de 5 Golds en un duelo de alto rango.');
-
-    const isMinxxx = checkRuleta(sender)
-    if(isMinxxx) {
-        const ahora = Date.now()
-        const time = timeRuleta(sender)
-        const result = ahora - time
-        const resultado = (0 - result) / 1000;
-        return enviar(`🩸 Su espíritu está agotado por el duelo previo. Espere ${runtime(resultado)} para volver a pelear.`)
-    } else {
-        const time = 1 * 60 * 1000 // 1 minuto de espera
-        await addRuleta(sender,time)
-        const ppt = ["muere", "vive"]; 
-        const pptb = ppt[Math.floor(Math.random() * ppt.length)];  
-        let vit;
-
-        if (pptb === "muere") {
-            vit = `⚔️ 「Una unidad imperial aparece frente a ${pushname}...」
-⚔️ 「¡La batalla es demasiado agresiva!」
-💀 「${pushname} ha sido **derrotado** y el Night Raid retira ${monto} Golds por su incompetencia.」`;
-            await delkoin(sender, monto);
-        } else if (pptb === "vive") {
-            vit = `⚔️ 「Una unidad imperial aparece frente a ${pushname}...」
-🩸 「¡Murasame: Ataca!」
-🏆 「El enemigo del Imperio es decapitado. ${pushname} sobrevive y gana ${monto} Golds de botín.」`;
-            await addkoin(sender, monto);
-        }
-
-        const datatt = `
-╭━━━╾⭑✦ 🩸 ✦⭑╼━━━╮
-      ⌬ 𝐄𝐍𝐅𝐑𝐄𝐍𝐓𝐀𝐌𝐈𝐄𝐍𝐓𝐎 ⌬
-${vit}
-⌛ Siguiente informe de avistamiento en 1 minuto...
-╰━━━╾⭑✦ ⚔️ ✦⭑╼━━━╯
-`;
-        enviar(datatt);
-    }
-}
-break
-
-
 
 case "explorar": case "incursion": case "operacion": case "suministros": {
     if (q) return enviar(`No ponga ninguna palabra, solo use el comando para iniciar la exploración.`);
@@ -2376,18 +2127,18 @@ case "explorar": case "incursion": case "operacion": case "suministros": {
             vit = `🩸 「Durante la exploración encontraste suministros médicos. Al entregarlos a la **Night Raid**, obtienes 20 de EXP 📚」`;
             await addXp(sender, 20);
         } else if (evento === "amuleto") {
-            vit = `🗡️ 「Explorando un santuario recuperaste un amuleto antiguo. La **Logística de el refugio de Night Raid** te otorga 8 Golds 🪙 por el hallazgo.」`;
+            vit = `🗡️ 「Explorando un santuario recuperaste un amuleto antiguo. La **Logística de el refugio de Night Raid** te otorga 8 ¥ 🪙 por el hallazgo.」`;
             await addkoin(sender, 8);
         } else if (evento === "mapa") {
-            vit = `📜 「Localizaste un mapa de guaridas enemigas. Recibes 4 Golds 🪙 y 5 de EXP 📚 de la **Night Raid**.」`;
+            vit = `📜 「Localizaste un mapa de guaridas enemigas. Recibes 4 ¥ 🪙 y 5 de EXP 📚 de la **Night Raid**.」`;
             await addkoin(sender, 4);
             await addXp(sender, 5);
         } else if (evento === "Murasame_rota") {
-            vit = `⚔️ 「En el camino encontraste una fragmento de Murasame. Los herreros te dan 3 Golds 🪙 y 3 de EXP 📚 por el acero recuperado.」`;
+            vit = `⚔️ 「En el camino encontraste una fragmento de Murasame. Los herreros te dan 3 ¥ 🪙 y 3 de EXP 📚 por el acero recuperado.」`;
             await addkoin(sender, 3);
             await addXp(sender, 3);
         } else if (evento === "veneno") {
-            vit = `🧪 「Exploraste un laboratorio abandonado y recuperaste veneno. Recibes 1 Gold 🪙 y 2 de EXP 📚 para el refugio de Night Raid.」`;
+            vit = `🧪 「Exploraste un laboratorio abandonado y recuperaste veneno. Recibes 1 ¥ 🪙 y 2 de EXP 📚 para el refugio de Night Raid.」`;
             await addkoin(sender, 1);
             await addXp(sender, 2);
         } else if (evento === "trampa") {
@@ -2437,17 +2188,17 @@ case 'enviaryenes': {
 
       if (!esObjetivoValido(mencionado)) return enviar("🩸 Menciona a un miembro o responde a su mensaje para enviarle suministros.\nEj: .enviar @ 10");
       if (mencionado === emisor) return enviar("🩸 No puede enviarse suministros a sí mismo.");
-      if (isNaN(monto) || monto <= 0) return enviar("🩸 Ingrese una cantidad válida de Golds.");
+      if (isNaN(monto) || monto <= 0) return enviar("🩸 Ingrese una cantidad válida de ¥.");
 
       const saldoEmisor = await MoneyOfSender(emisor);
-      if (saldoEmisor < monto) return enviar("❌ No posee suficientes **Golds** en su tesorería para este envío.");
+      if (saldoEmisor < monto) return enviar("❌ No posee suficientes **¥** en su tesorería para este envío.");
 
       // Realizar transferencia de suministros
       await delkoin(emisor, monto);
       await addkoin(mencionado, monto);
       await sleep(100);
 
-      enviar(`✅ **𝐒𝐔𝐌𝐈𝐍𝐈𝐒𝐓𝐑𝐎𝐒 𝐄𝐍𝐕𝐈𝐀𝐃𝐎𝐒**\n\nHas enviado *${monto} Golds* 🪙 al receptor. El intercambio ha sido registrado por la Night Raid.`, {
+      enviar(`✅ **𝐒𝐔𝐌𝐈𝐍𝐈𝐒𝐓𝐑𝐎𝐒 𝐄𝐍𝐕𝐈𝐀𝐃𝐎𝐒**\n\nHas enviado *${monto} ¥* 🪙 al receptor. El intercambio ha sido registrado por la Night Raid.`, {
         mentions: [emisor, mencionado]
       });
     } catch (e) {
@@ -2459,7 +2210,47 @@ break;
 
 
 
-case 'rep': case 'mirep': case 'reputacion': case 'reputación':
+case 'rep': case 'mirep': case 'banco': {
+  if (!isReg) return enviar(respuesta.registro);
+  const u = registro.find(x => x.id === sender) || {};
+  return enviar('🏦 *BANCO DE AKAME*\n\n💴 Disponible: *¥' + Number(MoneyOfSender(sender) || 0) + '*\n🛡️ Banco: *¥' + Number(u.banco || 0) + '*\n\nUsa *depositar cantidad* o *retirar cantidad*.');
+}
+break;
+
+case 'depositar': {
+  if (!isReg) return enviar(respuesta.registro);
+  const monto = Math.floor(Number(args[0] || 0));
+  if (!monto || monto <= 0) return enviar('🏦 Usa *depositar cantidad*.');
+  if (!depositarLite(sender, monto)) return enviar('🏦 No tienes suficiente dinero disponible para ese depósito.');
+  return enviar('🏦 *DEPÓSITO COMPLETADO*\n\nGuardaste *¥' + monto + '*.');
+}
+break;
+
+case 'retirar': {
+  if (!isReg) return enviar(respuesta.registro);
+  const monto = Math.floor(Number(args[0] || 0));
+  if (!monto || monto <= 0) return enviar('🏦 Usa *retirar cantidad*.');
+  if (!retirarLite(sender, monto)) return enviar('🏦 No tienes suficiente dinero en el banco.');
+  return enviar('🏦 *RETIRO COMPLETADO*\n\nRetiraste *¥' + monto + '*.');
+}
+break;
+
+case 'transferir': {
+  if (!isGroup) return enviar('💸 Este comando funciona en grupos.');
+  if (!isReg) return enviar(respuesta.registro);
+  const objetivo = obtenerObjetivo(info, args[0], groupMembers);
+  const monto = Math.floor(Number(args[1] || 0));
+  if (!objetivo) return enviar('💸 Usa *transferir @usuario cantidad*.');
+  if (objetivo === sender) return enviar('💸 No puedes transferirte dinero a ti mismo.');
+  if (!checkOfRegM(objetivo)) return enviar('💸 El destinatario no está registrado.');
+  if (!monto || monto <= 0) return enviar('💸 Indica una cantidad válida de ¥.');
+  if (Number(MoneyOfSender(sender) || 0) < monto) return enviar('💸 No tienes suficientes ¥.');
+  delkoin(sender, monto); addkoinM(objetivo, monto);
+  return enviar('💸 *TRANSFERENCIA COMPLETADA*\n\n@' + sender.split('@')[0] + ' envió *¥' + monto + '* a @' + objetivo.split('@')[0] + '.', { mentions: [sender, objetivo] });
+}
+break;
+
+case 'reputacion': case 'reputación':
 if(!isReg) return enviar(respuesta.registro)
 const myrep = repUser(sender)
 
@@ -2532,7 +2323,7 @@ case 'robar': case 'rob': {
   const restante = espera - (Date.now() - ultimo);
   if (restante > 0) return enviar(`🩸 Debes esperar ${Math.ceil(restante / 60000)} minuto(s) antes de intentar otro robo.`);
   const saldoObjetivo = Number(MoneyOfM(objetivo) || 0);
-  if (saldoObjetivo <= 0) return enviar('🩸 Ese objetivo es tan pobre que no tiene Golds que puedas robar.');
+  if (saldoObjetivo <= 0) return enviar('🩸 Ese objetivo es tan pobre que no tiene ¥ que puedas robar.');
   const maximo = Math.max(1, Math.min(500, Math.floor(saldoObjetivo * 0.25)));
   const exito = Math.random() < 0.55;
   robos[roboKey] = Date.now();
@@ -2541,11 +2332,11 @@ case 'robar': case 'rob': {
     const botin = Math.max(1, Math.floor(Math.random() * maximo) + 1);
     await delkoinM(objetivo, botin);
     await addkoin(sender, botin);
-    return enviar(`🩸 *𝐑𝐎𝐁𝐎 𝐄𝐉𝐄𝐂𝐔𝐓𝐀𝐃𝐎*\n\n@${sender.split('@')[0]} consiguió robarle *${botin} Golds 🪙* a @${objetivo.split('@')[0]}.\n\n*Akame:* «No dejes rastros.»`, { mentions: [sender, objetivo] });
+    return enviar(`🩸 *𝐑𝐎𝐁𝐎 𝐄𝐉𝐄𝐂𝐔𝐓𝐀𝐃𝐎*\n\n@${sender.split('@')[0]} consiguió robarle *${botin} ¥ 🪙* a @${objetivo.split('@')[0]}.\n\n*Akame:* «No dejes rastros.»`, { mentions: [sender, objetivo] });
   }
   const multa = Math.min(100, Math.max(1, Math.floor((Number(MoneyOfSender(sender) || 0)) * 0.05)));
   if (multa > 0) await delkoin(sender, multa);
-  return enviar(`⚠️ *𝐑𝐎𝐁𝐎 𝐅𝐀𝐋𝐋𝐈𝐃𝐎*\n\n@${sender.split('@')[0]} fue descubierto. Perdió *${multa} Golds 🪙* como penalización.\n\n*Akame:* «Te atraparon.»`, { mentions: [sender] });
+  return enviar(`⚠️ *𝐑𝐎𝐁𝐎 𝐅𝐀𝐋𝐋𝐈𝐃𝐎*\n\n@${sender.split('@')[0]} fue descubierto. Perdió *${multa} ¥ 🪙* como penalización.\n\n*Akame:* «Te atraparon.»`, { mentions: [sender] });
 }
 break;
 
@@ -2731,65 +2522,27 @@ case 'listaofensivas': case 'filterwords': {
 }
 break;
 
-case 'rank': case 'rankrep': 
-    if(!isGroup) return 
-    if(!isGroupAdmins) return enviar(respuesta.admin)
-    let teks2 = `╭━━━╾⭑✦ 𝑹𝑨𝑵𝑲 𝑫𝑬 𝑯𝑶𝑵𝑶𝑹 ✦⭑╼━━━╮\n  *⚔️ TOP 10 MIEMBROS CON MÁS REPUTACIÓN*\n\n`;
-    registro.sort((a, b) => b.rep - a.rep)
-           .slice(0, 10)
-           .forEach((usuario, indice) => {
-               teks2 += `  ${indice + 1}. *${usuario.nombre}* ➫ _${usuario.rep}_ de Reputación\n`;
-           });
-    teks2 += `╰━━━╾⭑✦ 𝑨𝒌𝒂𝒎𝒆𝑩𝒐𝒕-𝑴𝑫 ✦⭑╼━━━╯`
-    enviar(teks2)
-break 
-
-case 'rankcoins': {
-    if (!isGroup) return;
-    if(!isGroupAdmins) return enviar(respuesta.admin)
-    const pathi = './settings/Grupo/Json/registros.json';
-    const registro = JSON.parse(fs.readFileSync(pathi, 'utf8'));
-
-    let rankingMensaje = `╭━━━╾⭑✦ 𝑹𝑨𝑵𝑲 𝑫𝑬 𝑹𝑰𝑸𝑼𝑬𝒁𝑨 ✦⭑╼━━━╮\n  *🪙 TOP 10 MILLONARIOS DEL CUERPO*\n\n`;
-
-    const rankingArray = Array.isArray(registro)
-      ? registro
-      : Object.entries(registro).map(([jid, data]) => ({
-          nombre: data.nombre || jid.split('@')[0],
-          dinero: data.dinero || 0,
-        }));
-
-    rankingArray
-      .sort((a, b) => b.dinero - a.dinero)
-      .slice(0, 10)
-      .forEach((usuario, index) => {
-        rankingMensaje += `  ${index + 1}. *${usuario.nombre}* ➫ _${usuario.dinero}_ Golds\n`;
-      });
-    
-    rankingMensaje += `╰━━━╾⭑✦ 𝑨𝒌𝒂𝒎𝒆𝑩𝒐𝒕-𝑴𝑫 ✦⭑╼━━━╯`
-    enviar(rankingMensaje);
+case 'topdinero': case 'topdineroglobal': case 'topnivel': case 'topnivelglobal': case 'toprango': case 'toprangoglobal': case 'topreputacion': case 'topreputacionglobal': {
+  if (!isReg) return enviar(respuesta.registro);
+  const esGlobal = comando.endsWith('global');
+  if (!esGlobal && !isGroup) return enviar('🩸 Este ranking funciona en grupos.');
+  let usuarios = esGlobal ? [...registro] : registro.filter(u => (groupMembers || []).some(p => [p?.id,p?.lid,p?.phoneNumber].filter(Boolean).some(id => mismoJid(id,u.id))));
+  const tipo = comando.includes('dinero') ? 'dinero' : comando.includes('nivel') ? 'nivel' : comando.includes('rango') ? 'rango' : 'reputacion';
+  const valor = u => tipo === 'dinero' ? Number(u.dinero || 0) + Number(u.banco || 0) : tipo === 'reputacion' ? Number(u.rep || 0) : Number(u.nivel || 1);
+  usuarios.sort((a,b) => valor(b) - valor(a));
+  const top = usuarios.slice(0, esGlobal ? 20 : 10);
+  if (!top.length) return enviar('🏆 No hay usuarios registrados para este ranking.');
+  const titulo = tipo === 'dinero' ? '💰 TOP DINERO' : tipo === 'nivel' ? '📈 TOP NIVEL' : tipo === 'rango' ? '⚔️ TOP RANGO' : '⭐ TOP REPUTACIÓN';
+  const texto = top.map((u,i) => (i+1) + '. @' + String(u.id).split('@')[0] + ' — *' + (tipo === 'dinero' ? '¥' + valor(u) : tipo === 'reputacion' ? valor(u) + ' pts' : 'Nivel ' + valor(u)) + '*').join('\n');
+  return enviar(titulo + (esGlobal ? ' GLOBAL' : '') + '\n\n' + texto, { mentions: top.map(u => u.id) });
 }
 break;
-
-case 'ranknivel': {
-    if(!isGroup) return 
-    if(!isGroupAdmins) return enviar(respuesta.admin)
-    let teks = `╭━━━╾⭑✦ 𝑹𝑨𝑵𝑲 𝑫𝑬 𝑷𝑶𝑫𝑬𝑹 ✦⭑╼━━━╮\n  *🆙 TOP 10 MIEMBROS POR NIVEL*\n\n`
-    registro.sort((a,b) => b.nivel - a.nivel)
-           .slice(0, 10) // Agregué el slice para que no sea infinito
-           .forEach((usuario,index) => {
-               teks += `  ${index + 1}. *${usuario.nombre}* ➫ Nivel _*${usuario.nivel}*_\n`
-           });
-    teks += `╰━━━╾⭑✦ 𝑨𝒌𝒂𝒎𝒆𝑩𝒐𝒕-𝑴𝑫 ✦⭑╼━━━╯`
-    enviar(teks)
-}
-break 
 
 case "tienda":
 if (!q) return enviar(`
 ╭━━━╾⭑✦ 𝑴𝑬𝑹𝑪𝑨𝑫𝑶 𝑫𝑬 𝑨𝑲𝑨𝑴𝑬 ✦⭑╼━━━╮
   🏴 "Bienvenido, miembro de Night Raid. Prepárate bien."
-━━━━━━━━━━━━━━━━━━━━━━
+──────────
 ⚔️ **𝑨𝒓𝒕𝒊𝒄𝒖𝒍𝒐 1:**
 👉 \`.tienda 1\`
 🏷️ 50 𝒀𝒆𝒏𝒆𝒔 🪙 🔁 200 𝑬𝑿𝑷 🧪
@@ -2812,11 +2565,11 @@ if (!q) return enviar(`
 
 // COMPRA DE EXP
 if (q.startsWith("1")) {
-    if (coins < 50) return enviar("❌ No tienes suficientes Golds. Necesitas al menos 50 🪙 para este entrenamiento.");
+    if (coins < 50) return enviar("❌ No tienes suficientes ¥. Necesitas al menos 50 🪙 para este entrenamiento.");
     await delkoin(sender, 50);
     await addXp(sender, 200);
 
-    return enviar(`⚔️ ¡Excelente, ${pushname}! Has invertido 50 Golds en entrenamiento intenso. Ganaste 200 EXP.`);
+    return enviar(`⚔️ ¡Excelente, ${pushname}! Has invertido 50 ¥ en entrenamiento intenso. Ganaste 200 EXP.`);
 }
 
 // CAMBIO DE RANGO
@@ -2830,7 +2583,7 @@ if (q.startsWith("2")) {
     }
 
     if (coins < 50) {
-        return enviar("❌ No tienes suficientes Golds para proponer un nuevo orden de rangos. Necesitas 50 🪙.");
+        return enviar("❌ No tienes suficientes ¥ para proponer un nuevo orden de rangos. Necesitas 50 🪙.");
     }
 
     const path = './settings/rangos.json';
@@ -2848,7 +2601,7 @@ if (q.startsWith("2")) {
         fs.writeFileSync(path, JSON.stringify(rangosData, null, 2));
         await delkoin(sender, 50);
 
-        return enviar(`✅ ¡Orden actualizado, ${pushname}!\nEl rango del nivel *${nivel}* ahora es:\n✨ *${nuevoNombre}* ✨\nSe han cobrado 50 Golds por el trámite.`);
+        return enviar(`✅ ¡Orden actualizado, ${pushname}!\nEl rango del nivel *${nivel}* ahora es:\n✨ *${nuevoNombre}* ✨\nSe han cobrado 50 ¥ por el trámite.`);
     } catch (e) {
         return enviar("⚠️ El mensajero de Night Raid se perdió. No se pudo guardar el cambio.");
     }
