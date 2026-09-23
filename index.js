@@ -1968,6 +1968,22 @@ case 'antilink': {
 }
 break;
 
+case 'toimg': {
+  if (!isReg) return enviar(respuesta.registro);
+  if (!isQuotedSticker) return enviar('🩸 Responde a un sticker estático para convertirlo en imagen.');
+  const costoToimg = 2;
+  if (coins < costoToimg) return enviar('❌ No tienes suficientes ¥. Convertir un sticker a imagen cuesta *¥2*.');
+  try {
+    const buff = await getFileBuffer(info.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage, 'sticker');
+    await sock.sendMessage(from, { image: buff, caption: '🩸 *CONVERSIÓN COMPLETADA*\n\n💴 Costo: *¥2*' }, { quoted: info });
+    await addXp(sender, 3);
+    await delkoin(sender, costoToimg);
+  } catch {
+    return enviar('⚠️ No pude convertir ese sticker. Asegúrate de que sea un sticker estático.');
+  }
+}
+break;
+
 case 's':
 case 'sticker':
   if(!isReg) return enviar(respuesta.registro)
