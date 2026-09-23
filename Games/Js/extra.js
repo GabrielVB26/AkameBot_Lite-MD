@@ -28,6 +28,32 @@ const verdades = [
 ];
 
 function ahora() { return Date.now(); }
+const triviaQuestions = [
+  ['¿Cuál es el planeta conocido como planeta rojo?', ['marte']],
+  ['¿Cuántos días tiene una semana?', ['7','siete']],
+  ['¿Cuál es el océano más grande?', ['pacifico','pacífico']],
+  ['¿Cuánto es 5 + 7?', ['12','doce']],
+  ['¿Qué animal dice miau?', ['gato']],
+  ['¿Cuál es la capital de Francia?', ['paris','parís']],
+  ['¿Cuántos lados tiene un triángulo?', ['3','tres']],
+  ['¿Qué estrella está en el centro del sistema solar?', ['sol']],
+  ['¿Cuál es el resultado de 10 × 10?', ['100','cien']],
+  ['¿Qué idioma se habla principalmente en Brasil?', ['portugues','portugués']]
+];
+const pendingTrivia = new Map();
+function iniciarTrivia(chat,user){
+  if(pendingTrivia.has(chat)) return {error:'🎮 Ya hay una trivia activa en este grupo.'};
+  const wait=puedeUsar('trivia:'+user,60000);
+  if(wait) return {error:'⏳ Espera '+wait+'s antes de iniciar otra trivia.'};
+  const item=elegir(triviaQuestions);
+  const timeout=setTimeout(()=>pendingTrivia.delete(chat),20000);
+  pendingTrivia.set(chat,{respuestas:item[1],timeout,messageId:null,reward:null});
+  return {text:'🧠 *TRIVIA DE AKAME*\n\n❓ '+item[0]+'\n\n⏱️ Tienes *20 segundos*. Responde en el chat o responde a este mensaje.'};
+}
+function marcarTrivia(chat,messageId,reward){
+  const partida=pendingTrivia.get(chat);
+  if(partida){partida.messageId=messageId;partida.reward=reward;}
+}
 
 function puedeUsar(key, ms) {
   const ultimo = cooldowns.get(key) || 0;
@@ -82,6 +108,20 @@ async function procesarMensajeJuego(conn, from, sender, body, isGroup, info) {
   }
 
   const texto = normalizar(body);
+  const trivia=pendingTrivia.get(from);
+  if(trivia && texto){
+    if(trivia.respuestas.includes(texto)){
+      clearTimeout(trivia.timeout); pendingTrivia.delete(from);
+      try{if(typeof trivia.reward==='function')trivia.reward(sender,10,10);}catch{}
+      await conn.sendMessage(from,{text:'🏆 *¡CORRECTO!*\n\n@'+sender.split('@')[0]+' respondió correctamente.\n🎁 +10 ¥ · +10 EXP',mentions:[sender]},{quoted:info});
+      return true;
+    }
+    if(trivia.messageId && quotedId && String(quotedId)===String(trivia.messageId)){
+      await conn.sendMessage(from,{text:'❌ *INCORRECTO*\n\nPuedes intentarlo de nuevo mientras la trivia siga activa.',mentions:[sender]},{quoted:info});
+      return true;
+    }
+  }
+
   if (!isGroup && !['piedra', 'papel', 'tijera'].includes(texto)) return false;
 
   // Aceptar/rechazar un duelo pendiente. Puede hacerse respondiendo
@@ -279,5 +319,7 @@ module.exports = {
   marcarMensajeAdivina,
   obtenerReto,
   obtenerVerdad,
-  tienePvpActivo
+  tienePvpActivo,
+  iniciarTrivia,
+  marcarTrivia
 };
