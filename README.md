@@ -1,265 +1,52 @@
 <h1 align="center">🩸⚔️ AkameBot_Lite-MD ⚔️🩸</h1>
 
-<p align="center">
-  <img src="https://i.postimg.cc/y8y5hJjS/a1ab5cc1d621061308dec1aab68131fe.jpg" width="300" alt="AkameBot Lite" />
-</p>
+<p align="center"><b>Bot de WhatsApp ligero hecho en Venezuela por Gabriel-V.</b></p>
 
-<p align="center"><b>Bot de WhatsApp ligero para administración, protección, juegos, economía, stickers y herramientas de grupo.</b></p>
+<p align="center"><img src="https://i.postimg.cc/y8y5hJjS/a1ab5cc1d621061308dec1aab68131fe.jpg" width="280" alt="AkameBot Lite" /></p>
 
----
+## 🩸 ¿QUÉ ES AKAMEBOT LITE?
+AkameBot Lite es una versión ligera de AkameBot enfocada en administración, protección, economía básica, juegos sencillos y stickers. Se mantiene separada de la versión VIP y no incorpora sus funciones pesadas.
 
-## 🩸 HERRAMIENTAS
+- 🇻🇪 Hecho en Venezuela por Gabriel-V.
+- ⚡ Comandos con o sin prefijo.
+- 💴 Moneda: Yen (¥).
+- 🛡️ Protecciones principales activadas de fábrica.
+- 🚫 Sin descargas, reproductores, TikTok, Pinterest, audios automáticos ni venta de bots.
 
-### 🛡️ Administración y protección
-- AntiLink
-- AntiSpam
-- AntiFalsos
-- Autoaceptar
-- Bienvenida
-- Modo administrador
-- Mute / Unmute
-- Ban / Kick
-- Promote / Demote
-- Advertencias
-- Invocaciones y anuncios
-- Gestión del grupo
+## 🛡️ ADMINISTRACIÓN Y PROTECCIÓN
+AntiLink, AntiSpam, AntiFalsos, Autoaceptar, bienvenida, modo administrador, mute, expulsiones, promoción, advertencias y gestión del grupo.
 
-### 🎮 Juegos
-- Piedra, Papel o Tijera
-- PVP
-- Adivinanzas
-- Retos y preguntas
-- Dados
-- Incursiones y exploraciones
+AntiLink, AntiSpam, AntiFalsos, Autoaceptar y Antiprivado parten activos. Bienvenida y Modo Admin parten desactivados.
 
-### 💰 Economía
-- Registro
-- Perfil y cartera
-- Niveles y experiencia
-- Misiones
-- Tienda
-- Reputación
-- Rankings
-- Recompensas
+## 🎮 JUEGOS
+Solo se mantienen en el menú: `trivia`, `reto`, `verdad` y `parejas`.
 
-### 🎨 Stickers
-- Stickers desde imágenes
-- Stickers desde vídeos cortos
+## 💴 ECONOMÍA
+La economía usa Yen (¥) y toma como referencia la estructura monetaria de VIP sin agregar funciones nuevas a Lite.
 
-### ⚙️ Sistema
-- Actualización automática
-- SerBot / Servip
-- Información del bot
-- Ping
-- Canal oficial
+- Registro inicial: **¥50**.
+- Sticker de vídeo: **¥1**.
+- Sticker desde foto: **¥2**.
+- `banco`, `depositar`, `retirar` y `transferir`.
+- `robar @` con espera de 10 minutos.
+- Rankings de dinero, nivel, rango y reputación, locales y globales.
 
----
+## 🖼️ STICKERS
+`s` / `sticker` crea stickers de imágenes o vídeos cortos. `toimg` queda reservado para la conversión de sticker a imagen.
+
+## ⚙️ SISTEMA
+Incluye `menu`, `actualizar`, `reiniciar`, `ping`, `grupos`, `serbot`, `botvip` y `canal`.
+
+## 👑 CREADOR
+El creador conserva `seradmin`, `noseradmin`, `antiprivado`, `botglobal`, `bangp`, `desbangp` y `entra + enlace` para hacer que Akame entre a un grupo mediante un enlace de invitación.
 
 ## 📱 INSTALACIÓN EN TERMUX
-
-### 🚀 Automática
-
 ```bash
 pkg update -y && pkg upgrade -y && pkg install git nodejs-lts ffmpeg wget tesseract -y && echo "y" | termux-setup-storage && rm -rf AkameBot_Lite-MD && git clone https://github.com/GabrielVB26/AkameBot_Lite-MD && cd AkameBot_Lite-MD && npm install && npm start
-
 ```
-
-### 🛠️ Manual
-
-```bash
-pkg update -y
-pkg upgrade -y
-pkg install git nodejs-lts ffmpeg wget tesseract -y
-termux-setup-storage
-git clone https://github.com/GabrielVB26/AkameBot_Lite-MD
-cd AkameBot_Lite-MD
-npm install
-npm start
-```
-
----
-
-## 🐧 INSTALACIÓN EN VPS / LINUX
-
-### 🚀 Automática
-
-```bash
-git clone https://github.com/GabrielVB26/AkameBot_Lite-MD && cd AkameBot_Lite-MD && npm install && npm start
-```
-
-### 🛠️ Manual
-
-```bash
-git clone https://github.com/GabrielVB26/AkameBot_Lite-MD
-cd AkameBot_Lite-MD
-npm install
-npm start
-```
-
----
-
-# 📖 MANUAL DE COMANDOS
-
-> Todos los comandos pueden escribirse con prefijo (`.`, `#`, `/`, `!`, `?`, `*`, `•`) o sin prefijo. Cuando un comando necesite un usuario, puedes mencionarlo con `@` o responder directamente a su mensaje.
-
-## 🛡️ Administración
-
-**`antilink on/off`** — activa o desactiva la protección contra enlaces de WhatsApp.
-
-**`antispam on/off`** — activa o desactiva la protección contra spam.
-
-**`antifalsos on/off`** — activa o desactiva la detección de identificadores sospechosos.
-
-**`autoaceptar on/off`** — activa o desactiva la aprobación automática de solicitudes.
-
-**`welcome on/off`** — activa o desactiva las bienvenidas.
-
-**`modoadmin on/off`** — limita los comandos a administradores.
-
-**`bot on/off`** — activa o desactiva Akame únicamente en ese grupo.
-
-**`mute @`** — silencia a un miembro.
-
-**`unmute @`** — quita el silencio.
-
-**`ban @`** — expulsa a un miembro.
-
-**`promote @`** — da administrador.
-
-**`demote @`** — quita administrador.
-
-**`del`** — elimina el mensaje respondido.
-
-**`advertir @`** — añade una advertencia.
-
-**`advertencias @`** — consulta las advertencias de un miembro.
-
-**`advertenciasall`** — muestra todas las advertencias del grupo.
-
-**`quitaradvertencia @`** — elimina una advertencia.
-
-**`reiniciaradvertencias @`** — reinicia las advertencias de un miembro.
-
-**`borraradvertenciasall`** — borra todas las advertencias del grupo.
-
-**`invitar @`** — envía una invitación a un usuario.
-
-**`abrir`** — abre el grupo.
-
-**`cerrar`** — cierra el grupo.
-
-**`invocar`** — menciona a todos los miembros.
-
-**`anuncio`** — realiza un anuncio grupal.
-
-**`etiquetar`** — notifica al grupo mencionando a sus miembros.
-
-**`calcular`** — realiza cálculos.
-
-## 🎮 Juegos
-
-**`dado`** — lanza un dado.
-
-**`pvp @`** — desafía a un miembro a Piedra, Papel o Tijera.
-
-**`ppt piedra/papel/tijera`** — juega contra Akame.
-
-**`adivina`** — inicia una adivinanza.
-
-**`reto`** — obtiene un reto.
-
-**`verdad`** — obtiene una pregunta.
-
-**`incursion`** — inicia una incursión.
-
-**`explorar`** — inicia una exploración.
-
-**`parejas`** — selecciona una pareja del grupo.
-
-## 💰 Economía y RPG
-
-**`reg`** — registra tu cuenta.
-
-**`listreg`** — muestra los registrados.
-
-**`perfil`** — muestra tu perfil.
-
-**`cartera`** — consulta tus Golds.
-
-**`nivel`** — muestra tu nivel.
-
-**`daily`** — reclama la recompensa diaria.
-
-**`mision`** — inicia una misión.
-
-**`tienda`** — abre la tienda.
-
-**`regalar @`** — regala Golds.
-
-**`robar @`** — intenta robar Golds.
-
-**`ruleta`** — juega a la ruleta.
-
-**`tragamonedas`** — juega a la tragamonedas.
-
-**`levelup`** — consulta las opciones de nivel.
-
-**`reputacion`** — consulta la reputación.
-
-**`rank`** — muestra el ranking de reputación.
-
-**`rankcoins`** — muestra el ranking de Golds.
-
-**`ranknivel`** — muestra el ranking de niveles.
-
-## 🎨 Stickers
-
-**`s`** — crea un sticker.
-
-**`sticker`** — crea un sticker.
-
-## ⚙️ Sistema
-
-**`menu`** — muestra el menú.
-
-**`actualizar`** — actualiza Akame desde el repositorio.
-
-**`reiniciar`** — reinicia el bot.
-
-**`ping`** — muestra el estado del bot.
-
-**`botcompleto`** — muestra información del bot.
-
-**`grupos`** — muestra información de grupos.
-
-**`serbot`** — muestra cómo ser bot.
-
-**`servip`** — muestra información de la versión VIP.
-
-**`canal`** — muestra el canal oficial.
-
-## 👑 Creador
-
-**`seradmin`** — da administrador al creador.
-
-**`noseradmin`** — quita administrador al creador.
-
-**`antiprivado on/off`** — controla el acceso al privado del bot.
-
-**`botglobal on/off`** — activa o desactiva el bot globalmente.
-
-**`bangp`** — bloquea un grupo.
-
-**`desbangp`** — levanta el bloqueo de un grupo.
-
----
 
 ## 📢 CANAL OFICIAL
-
 https://whatsapp.com/channel/0029VbD46om42DcdavNtDO16
 
----
-
 ## 📜 LICENCIA
-
 **Copyright © 2026 Gabriel-V. Todos los derechos reservados.**
