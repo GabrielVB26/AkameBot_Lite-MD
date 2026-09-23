@@ -1755,6 +1755,11 @@ sock.sendMessage(from, { image: { url: getBotImage() }, caption: botinfo }, { qu
 }
 break 
 
+case 'botvip': {
+  return enviar('💎 *AKAMEBOT VIP*\n\nConsulta las novedades y disponibilidad de la versión VIP en el canal oficial.\n\n📢 *Canal oficial:*\nhttps://whatsapp.com/channel/0029VbD46om42DcdavNtDO16');
+}
+break;
+
 case 'grupos':
 case 'grupo':
 enviar(`⚔️ *Akme atenta*`);
