@@ -1993,7 +1993,7 @@ case 's':
 case 'sticker':
   if(!isReg) return enviar(respuesta.registro)
   const costoStickerVideo = 1;
-  const costoStickerFoto = 2;)
+  const costoStickerFoto = 2;
 
   // Primero detectamos si hay un mensaje citado
   var RSM = info.message?.extendedTextMessage?.contextInfo?.quotedMessage
