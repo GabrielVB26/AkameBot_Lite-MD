@@ -717,7 +717,9 @@ enviar(`${sla} Número existente en WhatsApp con  id: ${result.jid}`)
     
 // Constantes is
  const isGroup = info.key.remoteJid.endsWith('@g.us')
-const sender = isGroup ? info.key.participant: from
+const senderLid = isGroup ? String(info.key.participant || '').trim() : '';
+const senderPhone = String(info.key.participantPn || info.key.senderPn || ((!isGroup && String(from).endsWith('@s.whatsapp.net')) ? from : '') || '').trim();
+const sender = isGroup ? (senderPhone || senderLid) : from
 const groupMetadata = isGroup ? await sock.groupMetadata(from) : ''
 const groupName = isGroup ? groupMetadata.subject : ''
 const groupDesc = isGroup ? groupMetadata.desc : ''
