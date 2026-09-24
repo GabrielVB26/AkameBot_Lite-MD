@@ -1844,27 +1844,31 @@ case 'unban': {
 break
 
 case 'invocar':
-case 'revivir':
-if(!isReg) return enviar(respuesta.registro)
-if(!isGroup) return enviar('Esta técnica solo es funcional dentro de los grupos.')
-if(!isGroupAdmins) return enviar(respuesta.admin) 
-members_id = []
-teks = (args.length > 1) ? body.slice(8).trim(): ''
-teks += `\n🩸 *RECUENTO TOTAL:* ${groupMembers.length}\n`
-nu = 0
-for (let mem of groupMembers) {
-nu += 1
-teks += ` ➫[${nu.toString()}] @${mem.id.split('@')[0]}\n`
-members_id.push(mem.id)
+case 'revivir': {
+  if(!isReg) return enviar(respuesta.registro);
+  if(!isGroup) return enviar('Esta técnica solo es funcional dentro de los grupos.');
+  if(!isGroupAdmins) return enviar(respuesta.admin);
+
+  const members_id = [];
+  const filas = [];
+  for (let i = 0; i < groupMembers.length; i++) {
+    const mem = groupMembers[i];
+    filas.push(`│ ${i + 1}. @${mem.id.split('@')[0]}`);
+    members_id.push(mem.id);
+  }
+
+  const texto = `╭─〔 *📢 INVOCACIÓN* 〕
+│ 🩸 *Aparezcan todos.*
+│ 👥 *Total:* ${groupMembers.length}
+╰──────────────
+
+╭─〔 *👥 MIEMBROS* 〕
+${filas.join('\\n')}
+╰──────────────`;
+
+  mentions(texto, members_id, true);
+  break;
 }
-mentions(`
-🩸 ❝ *INVOCACIÓN DEL GRUPO* ❞ 
-*aparezcan todos*
-
-${teks}
-`, members_id, true)
-break
-
 
 case 'anuncio':{
 if(!isGroup) return enviar('Esta técnica de comunicación solo es válida dentro de los grupos')
