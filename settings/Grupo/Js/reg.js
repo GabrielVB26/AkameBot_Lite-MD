@@ -7,6 +7,24 @@ const time = moment.tz('America/Lima').format('DD/MM HH:mm:ss')
 let Nreg = JSON.parse(fs.readFileSync('./settings/Grupo/Json/registros.json'));
 
 const registro = JSON.parse(fs.readFileSync('./settings/Grupo/Json/registros.json'))
+function variantesIdRegistro(id){
+  const raw=String(id||'').split(':')[0].trim().toLowerCase();
+  if(!raw)return [];
+  const [numero,tipo]=raw.split('@');
+  if(tipo!=='s.whatsapp.net')return [raw];
+  const n=String(numero||'').replace(/\D/g,'');
+  const out=new Set([raw]);
+  if(n){
+    out.add(n+'@s.whatsapp.net');
+    if(n.startsWith('54')&&!n.startsWith('549')&&n.length>=11) out.add('549'+n.slice(2)+'@s.whatsapp.net');
+    if(n.startsWith('549')&&n.length>=12) out.add('54'+n.slice(3)+'@s.whatsapp.net');
+  }
+  return [...out];
+}
+function mismosIdsRegistro(a,b){
+  const A=variantesIdRegistro(a), B=new Set(variantesIdRegistro(b));
+  return A.some(x=>B.has(x));
+}
 /////REGISTRO
  const AddReg = ( sender, nombre) => {
      const obj = {
@@ -27,7 +45,7 @@ const registro = JSON.parse(fs.readFileSync('./settings/Grupo/Json/registros.jso
         const checkOfReg = (sender) => {
             let status = false
             Object.keys(registro).forEach((i) => {
-                if (registro[i].id === sender) {
+                if (mismosIdsRegistro(registro[i].id, sender)) {
                     status = true
                 }
             })
@@ -37,7 +55,7 @@ const registro = JSON.parse(fs.readFileSync('./settings/Grupo/Json/registros.jso
       const checkOfRegM  = (usuario) => {
             let status = false
             Object.keys(registro).forEach((i) => {
-                if (registro[i].id === usuario) {
+                if (mismosIdsRegistro(registro[i].id, usuario)) {
                     status = true
                 }
             })
@@ -50,7 +68,7 @@ const registro = JSON.parse(fs.readFileSync('./settings/Grupo/Json/registros.jso
 const delkoin = (sender, monto) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === sender) {
+if (mismosIdsRegistro(registro[i].id, sender)) {
 position = i
 }
 })
@@ -63,7 +81,7 @@ fs.writeFileSync('./settings/Grupo/Json/registros.json', JSON.stringify(registro
 const addkoin = (sender, monto) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === sender) {
+if (mismosIdsRegistro(registro[i].id, sender)) {
 position = i
 }
 })
@@ -76,7 +94,7 @@ fs.writeFileSync('./settings/Grupo/Json/registros.json', JSON.stringify(registro
 const MoneyOfSender = (sender) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === sender) {
+if (mismosIdsRegistro(registro[i].id, sender)) {
 position = i
 }
 })
@@ -89,7 +107,7 @@ return registro[position].dinero
  const delkoinM = (usuario, monto) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === usuario) {
+if (mismosIdsRegistro(registro[i].id, usuario)) {
 position = i
 }
 })
@@ -102,7 +120,7 @@ fs.writeFileSync('./settings/Grupo/Json/registros.json', JSON.stringify(registro
 const addkoinM = (usuario, monto) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === usuario) {
+if (mismosIdsRegistro(registro[i].id, usuario)) {
 position = i
 }
 })
@@ -115,7 +133,7 @@ fs.writeFileSync('./settings/Grupo/Json/registros.json', JSON.stringify(registro
 const MoneyOfM = (usuario) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === usuario) {
+if (mismosIdsRegistro(registro[i].id, usuario)) {
 position = i
 }
 })
@@ -128,7 +146,7 @@ return registro[position].dinero
 const addLevel = (sender, monto) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === sender) {
+if (mismosIdsRegistro(registro[i].id, sender)) {
 position = i
 }
 })
@@ -141,7 +159,7 @@ fs.writeFileSync('./settings/Grupo/Json/registros.json', JSON.stringify(registro
 const addXp = (sender, monto) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === sender) {
+if (mismosIdsRegistro(registro[i].id, sender)) {
 position = i
 }
 })
@@ -154,7 +172,7 @@ fs.writeFileSync('./settings/Grupo/Json/registros.json', JSON.stringify(registro
 const levelOfsender = (sender) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === sender) {
+if (mismosIdsRegistro(registro[i].id, sender)) {
 position = i
 }
 })
@@ -166,7 +184,7 @@ return registro[position].nivel
  const xpOfsender = (sender) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === sender) {
+if (mismosIdsRegistro(registro[i].id, sender)) {
 position = i
 }
 })
@@ -178,7 +196,7 @@ return registro[position].xp
 const addRxp = (sender,monto) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === sender) {
+if (mismosIdsRegistro(registro[i].id, sender)) {
 position = i
 }
 })
@@ -190,7 +208,7 @@ fs.writeFileSync('./settings/Grupo/Json/registros.json', JSON.stringify(registro
 const Rxp = (sender) => {
 let position = false
 Object.keys(registro).forEach((i) => {
-if (registro[i].id === sender) {
+if (mismosIdsRegistro(registro[i].id, sender)) {
 position = i
 }
 })
@@ -273,7 +291,7 @@ const delRep = (usuario, monto) => {
 const repUser = (sender) =>{
 let position = false ;
 Object.keys(registro).forEach((i) =>{
-if(registro[i].id === sender){
+if(mismosIdsRegistro(registro[i].id, sender)){
 position = i
 }})
 if(position !== false){
