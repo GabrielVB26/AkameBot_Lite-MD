@@ -219,6 +219,21 @@ function normalizarJid(jid) {
   return String(jid || '').split(':')[0].trim().toLowerCase();
 }
 
+function variantesNumeroWhatsApp(numero) {
+  const n = String(numero || '').replace(/\D/g, '');
+  if (!n) return [];
+  const out = new Set([n]);
+  // WhatsApp puede representar móviles argentinos como 549... o 54....
+  if (n.startsWith('54') && !n.startsWith('549') && n.length >= 11) out.add('549' + n.slice(2));
+  if (n.startsWith('549') && n.length >= 12) out.add('54' + n.slice(3));
+  return [...out];
+}
+
+function mismoNumeroWhatsApp(a, b) {
+  const A = new Set(variantesNumeroWhatsApp(a));
+  return variantesNumeroWhatsApp(b).some(v => A.has(v));
+}
+
 function mismoJid(a, b) {
   const A = normalizarJid(a);
   const B = normalizarJid(b);
@@ -228,7 +243,7 @@ function mismoJid(a, b) {
   const [bId, bType] = B.split('@');
   if (aType === 'lid' || bType === 'lid') return false;
   if (aType !== 's.whatsapp.net' || bType !== 's.whatsapp.net') return false;
-  return aId.replace(/\D/g, '') === bId.replace(/\D/g, '');
+  return mismoNumeroWhatsApp(aId.replace(/\D/g, ''), bId.replace(/\D/g, ''));
 }
 
 function cargarJsonSimple(filePath, inicial) {
@@ -310,7 +325,7 @@ function obtenerObjetivo(info, argumento, miembros = []) {
   if (!numero) return null;
   const encontrado = miembros.find(p => [p?.id, p?.lid, p?.phoneNumber].filter(Boolean).some(id => {
     const raw = String(id).split('@')[0].split(':')[0].replace(/[^0-9]/g, '');
-    return raw === numero;
+    return mismoNumeroWhatsApp(raw, numero);
   }));
   return encontrado?.id || encontrado?.lid || `${numero}@s.whatsapp.net`;
 }
