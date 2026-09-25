@@ -1830,7 +1830,7 @@ break;
 case 'entra': {
   if (!isOwner) return enviar(respuesta.miowner);
   const enlace = String(args[0] || '').trim();
-  const match = enlace.match(/chat\\.whatsapp\\.com\\/([A-Za-z0-9_-]+)/i);
+  const match = enlace.match(/chat\.whatsapp\.com\/([A-Za-z0-9_-]+)/i);
   if (!match) return enviar('🩸 Usa *entra + enlace de invitación de WhatsApp*.');
   try {
     await sock.groupAcceptInvite(match[1]);
