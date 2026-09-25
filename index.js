@@ -1834,7 +1834,7 @@ case 'entra': {
   if (!match) return enviar('🩸 Usa *entra + enlace de invitación de WhatsApp*.');
   try {
     await sock.groupAcceptInvite(match[1]);
-    return enviar('🟢 *AKAME ENTRÓ AL GRUPO*\\n\\nLa invitación fue aceptada correctamente.');
+    return enviar('🟢 *AKAME ENTRÓ AL GRUPO*\n\nLa invitación fue aceptada correctamente.');
   } catch (e) {
     console.error('[AKAME/ENTRA]', e?.message || e);
     return enviar('❌ No pude aceptar esa invitación. El enlace puede haber expirado o WhatsApp puede estar rechazándolo.');
@@ -2111,6 +2111,15 @@ const Mp = `
 break 
 
 //comando tragamonedas 
+case 'experiencia': {
+if(!isReg) return enviar(respuesta.registro)
+const Xp = xpOfsender(sender)
+const Mnv = levelOfsender(sender)
+const Rxxp = Rxp(sender)
+return enviar(`📚 *EXPERIENCIA*\\n\\nNivel: *${Mnv}*\\nEXP: *${Xp} / ${Rxxp + 1000}*`)
+}
+break
+
 case "dayli": case "daily":
 if(!isGroup) return
 if(!isReg) return 
