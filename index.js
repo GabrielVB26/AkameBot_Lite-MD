@@ -1456,6 +1456,25 @@ if (isGroup && !grupoActivo && comando !== 'bot') return
 
   // Los comandos también pueden escribirse sin prefijo.
   // Los mensajes normales caen en default y no generan respuesta.
+// ===================== COMANDOS LITE PERMITIDOS =====================
+// Este listado es la fuente de verdad de los comandos disponibles en Lite.
+// Todo comando que no aparezca aquí queda deshabilitado aunque exista código heredado.
+const COMANDOS_LITE_PERMITIDOS = new Set([
+  'antilink','antispam','antifalsos','autoaceptar','welcome','modoadmin','bot',
+  'mute','unmute','promote','demote','ban','del','advertir','advertencias',
+  'advertenciasall','quitaradvertencia','reiniciaradvertencias','borraradvertenciasall',
+  'abrir','cerrar','invocar','anuncio','etiquetar',
+  'trivia','reto','verdad','parejas',
+  'reg','perfil','banco','depositar','retirar','transferir','nivel','experiencia',
+  'daily','mision','tienda','regalar','robar','reputacion',
+  'topdinero','topdineroglobal','topnivel','topnivelglobal','toprango','toprangoglobal',
+  'topreputacion','topreputacionglobal',
+  's','sticker','toimg',
+  'menu','actualizar','reiniciar','ping','grupos','serbot','botvip','canal',
+  'seradmin','noseradmin','antiprivado','botglobal','entra','bangp','desbangp'
+]);
+if (comando && !COMANDOS_LITE_PERMITIDOS.has(comando)) return;
+
 switch(comando) {
 
 //Comandos owner
@@ -1807,6 +1826,22 @@ case 'serbot':
         await enviar("La técnica de comunicación ha fallado, Akame.");
     }
 break;
+
+case 'entra': {
+  if (!isOwner) return enviar(respuesta.miowner);
+  const enlace = String(args[0] || '').trim();
+  const match = enlace.match(/chat\\.whatsapp\\.com\\/([A-Za-z0-9_-]+)/i);
+  if (!match) return enviar('🩸 Usa *entra + enlace de invitación de WhatsApp*.');
+  try {
+    await sock.groupAcceptInvite(match[1]);
+    return enviar('🟢 *AKAME ENTRÓ AL GRUPO*\\n\\nLa invitación fue aceptada correctamente.');
+  } catch (e) {
+    console.error('[AKAME/ENTRA]', e?.message || e);
+    return enviar('❌ No pude aceptar esa invitación. El enlace puede haber expirado o WhatsApp puede estar rechazándolo.');
+  }
+}
+break;
+
 
 //AJUSTES DEL GRUPO
 
