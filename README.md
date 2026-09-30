@@ -29,7 +29,7 @@ Economía básica con los valores establecidos para AkameBot VIP.
 - `.daily`: **¥1000 diarios**.
 - `.robar @`: espera de **10 minutos**.
 - Sticker de vídeo: **¥1**.
-- Sticker desde foto: **¥2**.
+- Sticker desde foto: **¥1**.
 - Banco, depósito, retiro y transferencia.
 - Rankings de dinero, nivel, rango y reputación.
 
