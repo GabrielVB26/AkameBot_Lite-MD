@@ -46,7 +46,10 @@ Economía básica con los valores establecidos para AkameBot VIP.
 `seradmin`, `noseradmin`, `antiprivado`, `botglobal`, `bangp`, `desbangp` y `entra + enlace`.
 
 ## 📱 Instalación en Termux
-Copia y pega el comando completo. La instalación acepta automáticamente las confirmaciones; al finalizar solo tendrás que introducir tu número.
+Si no tienes Termux, puedes instalarlo desde la **Google Play Store oficial**:
+https://play.google.com/store/apps/details?id=com.termux
+
+Después, copia y pega el comando completo. La instalación acepta automáticamente las confirmaciones; al finalizar solo tendrás que introducir tu número.
 
 ```bash
 pkg update -y && pkg upgrade -y && pkg install git nodejs-lts ffmpeg wget tesseract -y && echo "y" | termux-setup-storage && rm -rf AkameBot_Lite-MD && git clone https://github.com/GabrielVB26/AkameBot_Lite-MD && cd AkameBot_Lite-MD && npm install && npm start
